@@ -19,7 +19,7 @@ module.exports = createPanZoom
 
 /**
  * Creates a new instance of panzoom, so that an object can be panned and zoomed
- * 
+ *
  * @param {DOMElement} domElement where panzoom should be attached.
  * @param {Object} options that configure behavior.
  */
@@ -45,16 +45,18 @@ function createPanZoom(domElement, options) {
 
   var isDirty = false
   var transform = new Transform()
+  var origin = options.transformOrigin;
 
-  var realPinch = typeof options.realPinch === 'boolean' ? options.realPinch : false
-  var bounds = options.bounds
-  var maxZoom = typeof options.maxZoom === 'number' ? options.maxZoom : Number.POSITIVE_INFINITY
-  var minZoom = typeof options.minZoom === 'number' ? options.minZoom : 0
+  var realPinch = typeof options.realPinch === 'boolean' ? options.realPinch : false;
+  var bounds = options.bounds;
+  var maxZoom = typeof options.maxZoom === 'number' ? options.maxZoom : Number.POSITIVE_INFINITY;
+  var minZoom = typeof options.minZoom === 'number' ? options.minZoom : 0;
 
-  var boundsPadding = typeof options.boundsPadding === 'number' ? options.boundsPadding : 0.05
-  var zoomDoubleClickSpeed = typeof options.zoomDoubleClickSpeed === 'number' ? options.zoomDoubleClickSpeed : defaultDoubleTapZoomSpeed
-  var beforeWheel = options.beforeWheel || noop
-  var speed = typeof options.zoomSpeed === 'number' ? options.zoomSpeed : defaultZoomSpeed
+  var boundsPadding = typeof options.boundsPadding === 'number' ? options.boundsPadding : 0.05;
+  var zoomDoubleClickSpeed = typeof options.zoomDoubleClickSpeed === 'number' ? options.zoomDoubleClickSpeed : defaultDoubleTapZoomSpeed;
+  var beforeWheel = options.beforeWheel || noop;
+  var speed = typeof options.zoomSpeed === 'number' ? options.zoomSpeed : defaultZoomSpeed;
+  var panButton = typeof options.panButton === 'number' ? options.panButton : 0;
 
   validateBounds(bounds)
 
@@ -80,7 +82,7 @@ function createPanZoom(domElement, options) {
   var smoothScroll
   if ('smoothScroll' in options && !options.smoothScroll) {
     // If user explicitly asked us not to use smooth scrolling, we obey
-    smoothScroll = rigidScroll() 
+    smoothScroll = rigidScroll()
   } else {
     // otherwise we use forward smoothScroll settings to kinetic API
     // which makes scroll smoothing.
@@ -102,7 +104,12 @@ function createPanZoom(domElement, options) {
     zoomTo: publicZoomTo,
     zoomAbs: zoomAbs,
     getTransform: getTransformModel,
-    showRectangle: showRectangle
+    showRectangle: showRectangle,
+    modifyOrigin: modifyOrigin
+  }
+
+  function modifyOrigin(newOrigin = {x:0,y:0,z:0}){
+      origin = newOrigin;
   }
 
   function showRectangle(rect) {
@@ -167,7 +174,10 @@ function createPanZoom(domElement, options) {
 
     keepTransformInsideBounds()
 
-    triggerEvent('pan')
+    triggerEvent('pan',{
+        x:x,
+        y:y
+    })
     makeDirty()
   }
 
@@ -300,7 +310,10 @@ function createPanZoom(domElement, options) {
     var transformAdjusted = keepTransformInsideBounds()
     if (!transformAdjusted) transform.scale *= ratio
 
-    triggerEvent('zoom')
+    triggerEvent('zoom',{
+        ratio:ratio,
+        scale:transform.scale
+    })
 
     makeDirty()
   }
@@ -389,9 +402,9 @@ function createPanZoom(domElement, options) {
     isDirty = false
 
     // TODO: Should I allow to cancel this?
-    domController.applyTransform(transform)
+    domController.applyTransform(transform, origin);
 
-    triggerEvent('transform')
+    triggerEvent('transform',transform)
     frameAnimation = 0
   }
 
@@ -545,16 +558,18 @@ function createPanZoom(domElement, options) {
   }
 
   function onMouseDown(e) {
+
     if (touchInProgress) {
       // modern browsers will fire mousedown for touch events too
       // we do not want this: touch is handled separately.
       e.stopPropagation()
       return false
     }
+
     // for IE, left click == 1
     // for Firefox, left click == 0
-    var isLeftButton = ((e.button === 1 && window.event !== null) || e.button === 0)
-    if (!isLeftButton) return
+    var isChosenButton = e.button === panButton;
+    if (!isChosenButton) return
 
     mouseX = e.clientX
     mouseY = e.clientY
@@ -627,7 +642,7 @@ function createPanZoom(domElement, options) {
       cancelZoomAnimation()
 
       // TODO: should consolidate this and publicZoomTo
-      triggerEvent('zoom')
+      triggerEvent('zoom',{scale:transform.scale,ratio:scaleMultiplier})
 
       zoomToAnimation = animate(from, to, {
         step: function(v) {
@@ -676,8 +691,8 @@ function createPanZoom(domElement, options) {
     }
   }
 
-  function triggerEvent(name) {
-    var event = createEvent(name)
+  function triggerEvent(name,extras) {
+    var event = createEvent(name,extras)
     domElement.dispatchEvent(event)
   }
 }

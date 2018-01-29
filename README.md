@@ -42,7 +42,7 @@ panzoom(area)
 <body>
   <svg>
     <!-- this is the draggable root -->
-    <g id='scene'> 
+    <g id='scene'>
       <circle cx='10' cy='10' r='5' fill='pink'></circle>
     </g>
   </svg>
@@ -51,7 +51,7 @@ panzoom(area)
 
 ``` js
 // In the browser panzoom is already on the
-// window. If you are in common.js world, then 
+// window. If you are in common.js world, then
 // var panzoom = require('panzoom')
 
 // grab the DOM SVG element that you want to be draggable/zoomable:
@@ -61,7 +61,7 @@ var scene = document.getElementById('scene')
 panzoom(scene)
 ```
 
-If your use case requires dynamic behavior (i.e. you want to make a scene not 
+If your use case requires dynamic behavior (i.e. you want to make a scene not
 draggable anymore, or even completely delete an SVG element) make sure to call
 `dispose()` method:
 
@@ -90,6 +90,22 @@ document.body.addEventListener('panend', function(e) {
 ```
 
 See [JSFiddle](https://jsfiddle.net/uwxcmbyg/1/) console for a demo.
+
+## Set Boundaries
+
+Define the max values the transformation might adopt. (left top does not work somehow)
+
+``` js
+
+panzoom(document.getElementById('g4'),{
+    bounds:{
+        left:0,
+        top:0,
+        bottom:500,
+        right:700
+    }
+})
+```
 
 ## Ignore mouse wheel
 
@@ -145,11 +161,11 @@ panzoom(document.getElementById('g4'), {
 
 You can adjust the double click zoom multiplier, by passing optional `zoomDoubleClickSpeed` argument.
 
-When double clicking, zoom is multiplied by `zoomDoubleClickSpeed`, which means that a value of 1 will disable double click zoom completely. 
+When double clicking, zoom is multiplied by `zoomDoubleClickSpeed`, which means that a value of 1 will disable double click zoom completely.
 
 ``` js
 panzoom(document.getElementById('g4'), {
-  zoomDoubleClickSpeed: 1, 
+  zoomDoubleClickSpeed: 1,
 });
 ```
 
@@ -164,7 +180,7 @@ panzoom(document.getElementById('g4'), {
 }).zoomAbs(
   300, // initial x position
   500, // initial y position
-  0.1  // initial zoom 
+  0.1  // initial zoom
 );
 ```
 
