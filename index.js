@@ -105,7 +105,12 @@ function createPanZoom(domElement, options) {
     zoomAbs: zoomAbs,
     getTransform: getTransformModel,
     showRectangle: showRectangle,
-    modifyOrigin: modifyOrigin
+    modifyOrigin: modifyOrigin,
+    setPanButton: setPanButton
+  }
+
+  function setPanButton(buttonId){
+      panButton = buttonId;
   }
 
   function modifyOrigin(newOrigin = {x:0,y:0,z:0}){
