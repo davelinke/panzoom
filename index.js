@@ -113,7 +113,10 @@ function createPanZoom(domElement, options) {
       panButton = buttonId;
   }
 
-  function modifyOrigin(newOrigin = {x:0,y:0,z:0}){
+  function modifyOrigin(newOrigin){
+      if (typeof(newOrigin)==='undefined'){
+          newOrigin =  = {x:0,y:0,z:0};
+      }
       origin = newOrigin;
   }
 
