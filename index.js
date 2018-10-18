@@ -115,7 +115,7 @@ function createPanZoom(domElement, options) {
 
   function modifyOrigin(newOrigin){
       if (typeOf(newOrigin)==='undefined'){
-          newOrigin =  = {x:0,y:0,z:0};
+          newOrigin = {x:0,y:0,z:0};
       }
       origin = newOrigin;
   }
